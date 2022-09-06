@@ -93,7 +93,7 @@
                 BorderBrush="{Binding ElementName = winGrid, Path = Background}"
                 BorderThickness="15"
                 CornerRadius="30"
-                ClipToBounds="False">
+                ClipToBounds="True">
             <Grid x:Name="winGrid"
                   x:FieldModifier="private"
                   Focusable="True"
