@@ -44,8 +44,8 @@
                  CaretBrush="{Binding (controls:RoundTextBox.CaretBrush), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:RoundTextBox}}}"
                  Background="{Binding (controls:RoundTextBox.Background), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:RoundTextBox}}}"
                  Foreground="{Binding (controls:RoundTextBox.Foreground), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:RoundTextBox}}}"
-                 TextChanged="OnTextChange" 
-                 KeyDown="OnKeyDown" 
+                 TextChanged="OnTextChange"
+                 KeyUp="OnKeyUp"
                  GotFocus="OnFocusRecieve" 
                  LostFocus="OnFocusLost" 
                  Loaded="OnTextBoxLoaded">

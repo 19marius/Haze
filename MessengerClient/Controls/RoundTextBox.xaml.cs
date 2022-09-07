@@ -3,9 +3,8 @@ using MessengerClient.Helpers;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows;
 using System.Windows.Data;
-using System.Diagnostics;
+using System.Windows;
 using System;
 
 namespace MessengerClient.Controls
@@ -15,6 +14,12 @@ namespace MessengerClient.Controls
     /// </summary>
     public partial class RoundTextBox : UserControl
     {
+        #region Delegates
+
+        public delegate void TextFinishedEventHandler(object sender, TextFinishedEventArgs e);
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -266,7 +271,7 @@ namespace MessengerClient.Controls
         /// </returns>
         public new bool IsFocused
         {
-            get => (bool)GetValue(IsFocusedProperty);
+            get => (bool)textBox.IsFocused;
         }
 
         #endregion
@@ -285,7 +290,7 @@ namespace MessengerClient.Controls
         /// <summary>
         /// Occurs when the text in the text element is confirmed.
         /// </summary>
-        public event RoutedEventHandler TextFinished
+        public event TextFinishedEventHandler TextFinished
         {
             add => AddHandler(TextFinishedEvent, value);
             remove => RemoveHandler(TextChangedEvent, value);
@@ -322,12 +327,13 @@ namespace MessengerClient.Controls
         public static readonly DependencyProperty TextDecorationsProperty = DependencyProperty.Register("TextDecorations", typeof(TextDecorationCollection), typeof(RoundTextBox), new PropertyMetadata(new TextDecorationCollection()));
 
         public static readonly RoutedEvent TextChangedEvent = EventManager.RegisterRoutedEvent("TextChanged", RoutingStrategy.Bubble, typeof(TextChangedEventHandler), typeof(RoundTextBox));
-        public static readonly RoutedEvent TextFinishedEvent = EventManager.RegisterRoutedEvent("TextFinished", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(RoundTextBox));
+        public static readonly RoutedEvent TextFinishedEvent = EventManager.RegisterRoutedEvent("TextFinished", RoutingStrategy.Bubble, typeof(TextFinishedEventHandler), typeof(RoundTextBox));
         public static readonly RoutedEvent PreviewTextChangedEvent = EventManager.RegisterRoutedEvent("PreviewTextChanged", RoutingStrategy.Bubble, typeof(TextChangedEventHandler), typeof(RoundTextBox));
 
         bool isPreviewActive = false,
              accReturn = false,
-             accTab = false;
+             accTab = false,
+             keyUp = false;
 
         #endregion
 
@@ -346,21 +352,15 @@ namespace MessengerClient.Controls
         public RoundTextBox()
         {
             InitializeComponent();
-
-            //Enable preview text
-            textGrid.Focusable = true;
-
-            //Bind the focus to the text box
-            SetBinding(IsFocusedProperty, new Binding() { ElementName = "textBox", Path = new PropertyPath("IsFocused") });
         }
 
         /// <summary>
-        /// Removes the focus from this <see cref="RoundTextBox"/>.
+        /// Attempts to set focus to this element.
         /// </summary>
-        public void RemoveFocus()
+        /// <returns><see langword="true"/> if keyboard focus and logical focus were set to this element; <see langword="false"/> if only logical focus was set to this element, or if the call to this method did not force the focus to change.</returns>
+        public new bool Focus()
         {
-            textGrid.Focus();
-            Keyboard.ClearFocus();
+            return textBox.Focus();
         }
 
         /// <summary>
@@ -369,17 +369,14 @@ namespace MessengerClient.Controls
         /// <param name="e">
         /// The arguments that are associated with the TextFinished event.
         /// </param>
-        protected virtual void OnTextFinished(RoutedEventArgs e)
+        protected virtual void OnTextFinished(TextFinishedEventArgs e)
         {
             RaiseEvent(e);
         }
 
-        protected override void OnGotFocus(RoutedEventArgs e)
-        {
-            base.OnGotFocus(e);
-            textBox.Focus();
-        }
-
+        /// <summary>
+        /// Caled when the text box is initially loaded. Sets the preview text if necessary.
+        /// </summary>
         private void OnTextBoxLoaded(object sender, RoutedEventArgs e)
         {
             isPreviewActive = !string.IsNullOrEmpty(Text);
@@ -394,6 +391,9 @@ namespace MessengerClient.Controls
             DisablePreview();
         }
 
+        /// <summary>
+        /// Called when the text in the text box changes. Adds or removes any changes to the Text property and replaces the text inside the text box with password characters, if necessary.
+        /// </summary>
         private void OnTextChange(object sender, TextChangedEventArgs e)
         {
             textBox.CaretIndex = textBox.Text.Length;
@@ -411,30 +411,44 @@ namespace MessengerClient.Controls
             RaiseEvent(e);
         }
 
+        /// <summary>
+        /// Called when the text box loses its focus. If the focus was lost intantionally by pressing Enter or Escape, this method will raise the TextFinishedEvent.
+        /// </summary>
         private void OnFocusLost(object sender, RoutedEventArgs e)
         {
-            if (base.IsFocused) return;
+            if (textBox.Text == "") EnablePreview();
 
-            OnTextFinished(new RoutedEventArgs(TextFinishedEvent, this));
-            if (textBox.Text != "") return;
-            EnablePreview();
+            //Set the keyUp field back to false before raising the event
+            var kup = keyUp;
+            keyUp = false;
+            OnTextFinished(new TextFinishedEventArgs(Text, kup, TextFinishedEvent, this));
         }
 
+        /// <summary>
+        /// Called when the text box recieves focus.
+        /// </summary>
         private void OnFocusRecieve(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine(Name + " got focus");
             if (isPreviewActive) Text = "";
             base.OnGotFocus(e);
         }
 
-        private void OnKeyDown(object sender, KeyEventArgs e)
+        /// <summary>
+        /// Called when a key is raised when the text box is focused. If the key is Enter or Escape, unfocuses the text box.
+        /// </summary>
+        private void OnKeyUp(object sender, KeyEventArgs e)
         {
+            //Only remove the focus if the ESC or ENTER (without LSHIFT) keys were pressed
             if (!((e.Key == Key.Enter && !KeyboardHelper.IsKeyDown(Key.LeftShift)) || e.Key == Key.Escape)) return;
 
-            textGrid.Focus();
+            keyUp = true;
+            base.Focus();
             Keyboard.ClearFocus();
         }
 
+        /// <summary>
+        /// Enables the preview text, binding the text of the text box to the preview text.
+        /// </summary>
         private void EnablePreview()
         {
             if (isPreviewActive) return;
@@ -449,6 +463,9 @@ namespace MessengerClient.Controls
             SetForegroundOpacity(textBox.Foreground.Opacity / 2);
         }
 
+        /// <summary>
+        /// Disables the preview text, binding the text of the text box to the actual text.
+        /// </summary>
         private void DisablePreview()
         {
             if (!isPreviewActive) return;
@@ -460,16 +477,27 @@ namespace MessengerClient.Controls
             SetForegroundOpacity(textBox.Foreground.Opacity * 2);
         }
 
+        /// <summary>
+        /// Sets any binding to the text box.
+        /// </summary>
         private void SetBinding(BindingBase bind)
         {
             BindingOperations.ClearBinding(textBox, TextBox.TextProperty);
             if (!(bind is null)) textBox.SetBinding(TextBox.TextProperty, bind);
         }
 
+        /// <summary>
+        /// Sets the text box's foreground opacity. If the foreground is frozen, this method will replace it with an unfrozen copy.
+        /// </summary>
         private void SetForegroundOpacity(double value)
         {
             if (textBox.Foreground.IsSealed || textBox.Foreground.IsFrozen) textBox.Foreground = textBox.Foreground.Clone();
             textBox.Foreground.Opacity = value;
+        }
+
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
+
         }
     }
 }
