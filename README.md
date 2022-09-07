@@ -10,8 +10,7 @@ feartures other messaging applications miss.
 
 • **Technologies**
 
-This project is built using WPF, using the
-MVVM pattern. All used libraries are internal
+This project is built using WPF. All used libraries are internal
 or made by me.
 
 • **Personal Goal**
