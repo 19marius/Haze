@@ -43,6 +43,7 @@ namespace MessengerClient
         /// </summary>
         private void PrepareWindow()
         {
+            //Set up dimensions and opacities
             Top = SystemParameters.PrimaryScreenHeight / 6;
             Left = SystemParameters.PrimaryScreenWidth / 6;
             resizeThumb.IsHitTestVisible = false;
@@ -52,6 +53,9 @@ namespace MessengerClient
             exitBtn.Opacity = 0;
             minBtn.Opacity = 0;
             Opacity = 0;
+
+            //Add the click handler to the main grid, as to focus it when clicking it
+            EventHelper.AddClickHandler(winGrid, OnWinGridClick);
 
             //Set the text boxes
             loginBoxes = winGrid.Children.Cast<UIElement>().Where(x => Regex.IsMatch((x as RoundTextBox)?.Name ?? "", "(user|email|pass|confirm)Box")).Select(x => { (x as RoundTextBox).TextFinished += OnLoginBoxTextFinished; return x as RoundTextBox; }).ToList();
@@ -226,6 +230,14 @@ namespace MessengerClient
         }
 
         /// <summary>
+        /// Focuses the main grid.
+        /// </summary>
+        private void OnWinGridClick(object sender, RoutedEventArgs e)
+        {
+            winGrid.Focus();
+        }
+
+        /// <summary>
         /// Drags the window.
         /// </summary>
         private void OnDraggerDown(object sender, MouseButtonEventArgs e)
@@ -284,6 +296,11 @@ namespace MessengerClient
             //Animate the opacities
             emailBox.AnimateOpacity(Convert.ToInt32(!session.SignInRequired), Convert.ToInt32(session.SignInRequired), 250, typeof(SineEase), EasingMode.EaseOut);
             confirmBox.AnimateOpacity(Convert.ToInt32(!session.SignInRequired), Convert.ToInt32(session.SignInRequired), 250, typeof(SineEase), EasingMode.EaseOut);
+
+            //If a text box that will be removed is focused, focus the one above it 
+            var focus = FocusManager.GetFocusedElement(this);
+            if (session.SignInRequired || !loginBoxes.Contains(focus) || loginBoxes[0].Equals(focus) || loginBoxes[2].Equals(focus)) return;
+            loginBoxes[loginBoxes.IndexOf(focus as RoundTextBox) - 1].Focus();
         }
 
         /// <summary>
@@ -295,16 +312,22 @@ namespace MessengerClient
             keepSignText.Text = session.ShouldPersist ? "<i>(c#00FF00,b)[YOU WILL BE KEPT SIGNED IN]" : "<i>KEEP ME SIGNED IN";
         }
 
-        private void OnLoginBoxTextFinished(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Called when input is finished in a login text box. Advances to the next empty login text box, or, if there are no empty login text boxes, attempts to log/sign in.
+        /// </summary>
+        private async void OnLoginBoxTextFinished(object sender, TextFinishedEventArgs e)
         {
-            //Only perform the login if the last text box, depending on the requirement of signing in, is unfocused
-            if ((session.SignInRequired && sender == loginBoxes.Last()) || (!session.SignInRequired && sender == loginBoxes[2]))
-            {
-                PerformLogin();
-                return;
-            }
+            //Only progress the log in if the text was finished by key
+            if (!e.ByKey) return;
 
-            loginBoxes[loginBoxes.IndexOf(sender as RoundTextBox) + (session.SignInRequired ? 1 : 2)].Focus();
+            //This delay ensures the key that invoked the key up event of the caller text box won't invoke the same event of the latter text box
+            await Task.Delay(1);
+
+            //Focus the next empty text box, if existent (the same text box won't be focused twice)
+            loginBoxes.Where((x, i) => x != sender && string.IsNullOrEmpty(x.Text) && (session.SignInRequired || i % 2 == 0)).FirstOrDefault()?.Focus();
+
+            //Log or sign in if all the necessary boxes are filled (checks will be done after)
+            if ((!session.SignInRequired && !string.IsNullOrEmpty(userBox.Text) && !string.IsNullOrEmpty(passBox.Text)) || (session.SignInRequired && !loginBoxes.Where(x => string.IsNullOrEmpty(x.Text)).Any())) PerformLogin();
         }
 
         private void PerformLogin()

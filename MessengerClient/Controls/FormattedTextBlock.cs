@@ -971,8 +971,7 @@ namespace MessengerClient.Controls
 #region RUN TAG INFO
 #if false
 
-- all Run objects of a FormattedTextBlock object have the same tag, a List<object>
-- this tag is ONLY used for the link effect
+- all Run objects of a FormattedTextBlock object (which have the link effect) have the same tag, a List<object>
 
 tag[0]: a bool which confirms if the left mouse button was pressed on the Run (used for MouseLeftButtonUp and MouseLeave events)
 

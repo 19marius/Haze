@@ -499,6 +499,16 @@ namespace MessengerClient.Helpers
     public static class KeyboardHelper
     {
         /// <summary>
+        /// Presses a key.
+        /// </summary>
+        public static void PressKey(Key key)
+        {
+            var vk = KeyInterop.VirtualKeyFromKey(key);
+            keybd_event((byte)vk, (byte)MapVirtualKey((uint)vk, 4), 0, 0);
+            keybd_event((byte)vk, (byte)MapVirtualKey((uint)vk, 4), 0x0002, 0);
+        }
+
+        /// <summary>
         /// Checks if <paramref name="key"/> is currently held down.
         /// </summary>
         public static bool IsKeyDown(Key key)
@@ -516,6 +526,12 @@ namespace MessengerClient.Helpers
 
         [DllImport("user32.dll")]
         static extern short GetKeyState(int virtKey);
+
+        [DllImport("user32.dll")]
+        static extern void keybd_event(byte virtKey, byte virtScan, uint flags, int info);
+
+        [DllImport("user32.dll")]
+        static extern uint MapVirtualKey(uint code, uint type);
     }
 
     /// <summary>
@@ -547,6 +563,70 @@ namespace MessengerClient.Helpers
         public static IEnumerable<T> Create<T>(this T obj, Func<T, int, T> creator, int amount)
         {
             for (int i = 0; i < amount; i++) yield return creator(obj, i);
+        }
+    }
+
+    /// <summary>
+    /// Provides static methods which allow the addition of handlers to the events of <see cref="UIElement"/> objects.
+    /// </summary>
+    public static class EventHelper
+    {
+        #region Fields
+
+        static Dictionary<UIElement, object[]> clickDictionary = new Dictionary<UIElement, object[]>();
+
+        #endregion
+
+        /// <summary>
+        /// Adds a <see cref="RoutedEventHandler"/> to an <see cref="UIElement"/> to be invoked when it's clicked.
+        /// <para>
+        /// If this method is called multiple times on the same <see cref="UIElement"/>, <paramref name="handler"/> will be added to the original handler.
+        /// </para>
+        /// </summary>
+        public static void AddClickHandler(UIElement element, RoutedEventHandler handler)
+        {
+            //If the element is already registered, just add the new handler to the rest
+            if (clickDictionary.ContainsKey(element))
+            {
+                clickDictionary[element][1] = (clickDictionary[element][1] as RoutedEventHandler) + handler;
+                return;
+            }
+
+            clickDictionary.Add(element, new object[] { false, handler });
+
+            element.MouseLeftButtonDown += OnElementLeftMouseButtonDown;
+            element.MouseLeftButtonUp += OnElementLeftMouseButtonUp;
+            element.MouseLeave += OnElementMouseLeave;
+        }
+
+        /// <summary>
+        /// Called when the left mouse button is depressed onto the <see cref="UIElement"/>.
+        /// </summary>
+        private static void OnElementLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            clickDictionary[sender as UIElement][0] = true;
+        }
+
+        /// <summary>
+        /// Called when the left mouse button is released from the <see cref="UIElement"/>. If the button was initially depressed onto the element, this will invoke the click event.
+        /// </summary>
+        private static void OnElementLeftMouseButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            //Get the object array of the element and return if the mouse wasn't initially depressed
+            var data = clickDictionary[sender as UIElement];
+            if (!(bool)data[0]) return;
+
+            //Reset the check value and invoke the handlers
+            data[0] = false;
+            (data[1] as RoutedEventHandler).Invoke(sender, new RoutedEventArgs());
+        }
+
+        /// <summary>
+        /// Called when the mouse leaves the <see cref="UIElement"/>.
+        /// </summary>
+        private static void OnElementMouseLeave(object sender, MouseEventArgs e)
+        {
+            clickDictionary[sender as UIElement][0] = false;
         }
     }
 }
