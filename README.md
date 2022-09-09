@@ -23,7 +23,7 @@ my portfolio, and present it when necessary.
 
 *For an accurate development log, refer to the [project file](https://github.com/users/19marius/projects/1).*
 
-Login UI is in the bugfixing state.
+Login UI is now fixed.
 
 
 
