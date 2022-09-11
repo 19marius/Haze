@@ -121,6 +121,7 @@ namespace MessengerClient
         /// </summary>
         private async void OnWindowInitialized(object sender, EventArgs e)
         {
+            //Fade the window in
             await Task.Delay(150);
             await FadeWindow(250, false, false);
             await Task.Delay(250);
