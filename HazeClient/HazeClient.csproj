@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{10BD464B-D03A-4A00-AC97-02F6A3C5D815}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>HazeClient</RootNamespace>
     <AssemblyName>HazeClient</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -153,7 +153,8 @@
     <Resource Include="Resources\logo_main.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\haze_logo_written.png" />
+    <Resource Include="Resources\haze_logo_f.png" />
+    <Resource Include="Resources\haze_logo_w.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
