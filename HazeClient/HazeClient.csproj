@@ -156,5 +156,8 @@
     <Resource Include="Resources\haze_logo_f.png" />
     <Resource Include="Resources\haze_logo_w.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\haze_logo_f_small.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

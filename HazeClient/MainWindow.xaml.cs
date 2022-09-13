@@ -1,22 +1,18 @@
-﻿using System.Windows.Controls.Primitives;
-using System.Windows.Media.Animation;
-using System.Collections.ObjectModel;
+﻿using System.Windows.Media.Animation;
 using System.Text.RegularExpressions;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Collections.Generic;
-using System.Windows.Navigation;
-using HazeClient.Controls;
-using System.Windows.Documents;
-using HazeClient.Helpers;
 using System.Windows.Controls;
 using System.Threading.Tasks;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using HazeClient.Users;
-using HazeClient.Text;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Data;
+using HazeClient.Controls;
+using HazeClient.Helpers;
+using HazeClient.Users;
+using HazeClient.Text;
 using System.Windows;
 using System.Linq;
 using System;
@@ -160,7 +156,6 @@ namespace HazeClient
 
             //Show welcome text
             welcomeTxt.Text = "(b,f1.1)[WELCOME TO]";
-
             await welcomeTxt.AwaitQueue();
 
             //Play the text logo animation
@@ -169,12 +164,13 @@ namespace HazeClient
                 Source = new BitmapImage(new Uri("Resources/haze_logo_w.png", UriKind.RelativeOrAbsolute)),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Width = 225,
-                Height = 100,
+                Width = 150,
+                Height = 50,
                 Opacity = 0,
-                Margin = new Thickness(0, 0, 0, -125),
+                Margin = new Thickness(330, 0, 0, 12),
                 RenderTransformOrigin = new Point(0.5, 0.5),
-                RenderTransform = new ScaleTransform(0.9, 0.9)
+                RenderTransform = new ScaleTransform(0.9, 0.9),
+                Effect = new DropShadowEffect() { BlurRadius = 20, ShadowDepth = 10 }
             };
             winGrid.Children.Add(logo);
             logo.AnimateOpacity(0, 1, 250, typeof(SineEase), EasingMode.EaseOut);
@@ -189,18 +185,23 @@ namespace HazeClient
             welcomeTxt.RenderTransform = introScale;
             introScale.AnimateWidth(1, 0.7, 750, typeof(QuinticEase), EasingMode.EaseOut);
             introScale.AnimateHeight(1, 0.7, 750, typeof(QuinticEase), EasingMode.EaseOut);
-            logoScale.AnimateWidth(1, 0.7, 750, typeof(QuinticEase), EasingMode.EaseOut);
-            logoScale.AnimateHeight(1, 0.7, 750, typeof(QuinticEase), EasingMode.EaseOut);
-            logo.AnimateMargin(new Thickness(0, 0, 0, -125), new Thickness(0, 0, 0, winGrid.Height - 250), 750, typeof(QuinticEase), EasingMode.EaseOut);
-            await welcomeTxt.AnimateMarginAsync(new Thickness(0, 0, 0, 0), new Thickness(0, 0, 0, winGrid.Height - 150), 750, typeof(QuinticEase), EasingMode.EaseOut);
+            logoScale.AnimateWidth(1, 0.75, 750, typeof(QuinticEase), EasingMode.EaseOut);
+            logoScale.AnimateHeight(1, 0.75, 750, typeof(QuinticEase), EasingMode.EaseOut);
+            logo.AnimateMargin(new Thickness(330, 0, 0, 12), new Thickness(230, 0, 0, winGrid.Height - 150 + 7), 750, typeof(QuinticEase), EasingMode.EaseOut);
+            await welcomeTxt.AnimateMarginAsync(new Thickness(0, 0, 170, 0), new Thickness(0, 0, 125, winGrid.Height - 150), 750, typeof(QuinticEase), EasingMode.EaseOut);
+
+            //Set the binding for the text
+            var textBinding = new MultiBinding() { Converter = FindResource("margin") as IMultiValueConverter, ConverterParameter = "f0,0,125,{0} - 150" };
+            textBinding.Bindings.Add(new Binding() { ElementName = "winGrid", Path = new PropertyPath("Height") });
+            welcomeTxt.SetBinding(MarginProperty, textBinding);
+
+            //Set the binding for the logo
+            var logoBinding = new MultiBinding() { Converter = FindResource("margin") as IMultiValueConverter, ConverterParameter = "f230, 0, 0, {0} - 150 + 7" };
+            logoBinding.Bindings.Add(new Binding() { ElementName = "winGrid", Path = new PropertyPath("Height") });
+            logo.SetBinding(MarginProperty, logoBinding);
 
             //Set the splash's quality
             RenderOptions.SetBitmapScalingMode(logo, BitmapScalingMode.Fant);
-
-            //Set the binding
-            var textBinding = new MultiBinding() { Converter = FindResource("margin") as IMultiValueConverter, ConverterParameter = "f0,0,0,{0} - 150" };
-            textBinding.Bindings.Add(new Binding() { ElementName = "winGrid", Path = new PropertyPath("Height") });
-            welcomeTxt.SetBinding(MarginProperty, textBinding);
 
             await Task.Delay(150);
 

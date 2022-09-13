@@ -136,6 +136,7 @@
                 <controls:FormattedTextBlock x:Name="welcomeTxt"
                                              x:FieldModifier="private"
                                              FadingDuration="250"
+                                             Margin="0,0,170,0"
                                              Foreground="AliceBlue"
                                              FontWeight="DemiBold"
                                              TextAlignment="Center"
