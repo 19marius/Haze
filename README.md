@@ -25,6 +25,7 @@ my portfolio, and present it when necessary.
 
 Renamed the project to Haze.
 
+![thing](https://github.com/19marius/Haze/blob/master/HazeClient/Resources/logo_main.png)
 
 
 
