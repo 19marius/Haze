@@ -23,13 +23,14 @@ my portfolio, and present it when necessary.
 
 ## DEVELOPMENT STATUS
 
-- ~~created networking library~~
-- ~~created database library~~
+- ~~create networking library~~
+- ~~create database library~~
 - ~~create logon ui~~
 - create server app
 - hook up server to client
 - store account information
-...
+
+(more tasks will appear as development progresses)
 
 
 
