@@ -1,0 +1,109 @@
+﻿<UserControl x:Class="HazeClient.Controls.RoundTextBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:HazeClient.Controls"
+             xmlns:convert="clr-namespace:HazeClient.Converters"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignWidth="800"
+             d:DesignHeight="100">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <convert:ConditionalConverter x:Key="pred"/>
+            <convert:ArithmeticConverter x:Key="math"/>
+            <convert:ThicknessConverter x:Key="margin"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid x:Name="textGrid"
+          FocusVisualStyle="{x:Null}">
+        <Grid.Width>
+            <MultiBinding Converter="{StaticResource math}"
+                          Mode="OneWay"
+                          ConverterParameter="-">
+                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}"
+                             Path="Width"/>
+                <Binding Source="15"/>
+            </MultiBinding>
+        </Grid.Width>
+        <Grid.Height>
+            <MultiBinding Converter="{StaticResource math}"
+                          Mode="OneWay"
+                          ConverterParameter="-">
+                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}"
+                             Path="Height"/>
+                <Binding Source="15"/>
+            </MultiBinding>
+        </Grid.Height>
+        <TextBox x:Name="textBox"
+                 FontWeight="DemiBold"
+                 TextAlignment="Left"
+                 BorderThickness="0"
+                 TextWrapping="Wrap"
+                 FontStyle="{Binding (controls:RoundTextBox.FontStyle), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:RoundTextBox}}}"
+                 FontFamily="{Binding (controls:RoundTextBox.FontFamily), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:RoundTextBox}}}"
+                 CaretBrush="{Binding (controls:RoundTextBox.CaretBrush), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:RoundTextBox}}}"
+                 Background="{Binding (controls:RoundTextBox.Background), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:RoundTextBox}}}"
+                 Foreground="{Binding (controls:RoundTextBox.Foreground), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:RoundTextBox}}}"
+                 TextChanged="OnTextChange"
+                 KeyUp="OnKeyUp"
+                 GotFocus="OnFocusRecieve" 
+                 LostFocus="OnFocusLost" 
+                 Loaded="OnTextBoxLoaded">
+            <TextBox.Effect>
+                <DropShadowEffect BlurRadius="50"
+                                  ShadowDepth="8"/>
+            </TextBox.Effect>
+            <TextBox.Width>
+                <MultiBinding Converter="{StaticResource math}"
+                              Mode="OneWay"
+                              ConverterParameter="-">
+                    <Binding ElementName="textGrid"
+                             Path="Width"/>
+                    <Binding ElementName="border"
+                             Path="BorderThickness.Left"/>
+                    <Binding ElementName="border"
+                             Path="BorderThickness.Left"/>
+                </MultiBinding>
+            </TextBox.Width>
+            <TextBox.Height>
+                <MultiBinding Converter="{StaticResource math}"
+                              Mode="OneWay"
+                              ConverterParameter="-">
+                    <Binding ElementName="textGrid"
+                             Path="Height"/>
+                    <Binding ElementName="border"
+                             Path="BorderThickness.Left"/>
+                    <Binding ElementName="border"
+                             Path="BorderThickness.Left"/>
+                </MultiBinding>
+            </TextBox.Height>
+            <TextBox.FontSize>
+                <MultiBinding Converter="{StaticResource math}"
+                              Mode="OneWay"
+                              ConverterParameter="f[{0}/3 > {1} ? {1} : {0}/3]">
+                    <Binding ElementName="textBox"
+                             Path="Height"/>
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:RoundTextBox}}"
+                             Path="MaxFontSize"/>
+                </MultiBinding>
+            </TextBox.FontSize>
+            <TextBox.Padding>
+                <MultiBinding Converter="{StaticResource margin}"
+                              Mode="OneWay"
+                              ConverterParameter="f{0}/1.25,{0}/1.25,{0}/1.25,{0}/1.25">
+                    <Binding RelativeSource="{RelativeSource Self}"
+                             Path="FontSize"/>
+                </MultiBinding>
+            </TextBox.Padding>
+        </TextBox>
+        <Border x:Name="border"
+                x:FieldModifier="private"
+                BorderBrush="{Binding (controls:RoundTextBox.BorderBrush), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:RoundTextBox}}}"
+                BorderThickness="{Binding (controls:RoundTextBox.BorderThickness), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:RoundTextBox}}}"
+                CornerRadius="20">
+            <Grid/>
+        </Border>
+    </Grid>
+</UserControl>
