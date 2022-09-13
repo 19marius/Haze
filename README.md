@@ -30,7 +30,7 @@ my portfolio, and present it when necessary.
 - hook up server to client
 - store account information
 
-(more tasks will appear as development progresses)
+_(more tasks will appear as development progresses)_
 
 
 
