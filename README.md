@@ -1,3 +1,5 @@
+![image](https://github.com/19marius/Haze/blob/master/HazeClient/Resources/haze_logo_f_small.png)
+
 ## ABOUT THE PROJECT
 
 Haze is an open-source messaging application.
@@ -21,11 +23,7 @@ my portfolio, and present it when necessary.
 
 ## DEVELOPMENT STATUS
 
-*For an accurate development log, refer to the [project file](https://github.com/users/19marius/projects/1).*
-
 Renamed the project to Haze.
-
-![thing](https://raw.githubusercontent.com/19marius/Haze/master/HazeClient/Resources/logo_main.ico?token=GHSAT0AAAAAABYO2XLTEBBS6WV6RT5VHHRCYZAYXBQ)
 
 
 
