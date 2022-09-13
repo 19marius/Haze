@@ -166,7 +166,7 @@ namespace HazeClient
             //Play the text logo animation
             var logo = new Image()
             {
-                Source = new BitmapImage(new Uri("Resources/haze_logo_written.png", UriKind.RelativeOrAbsolute)),
+                Source = new BitmapImage(new Uri("Resources/haze_logo_w.png", UriKind.RelativeOrAbsolute)),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Width = 225,
