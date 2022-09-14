@@ -23,7 +23,14 @@ my portfolio, and present it when necessary.
 
 ## DEVELOPMENT STATUS
 
-Renamed the project to Haze.
+- ~~create networking library~~
+- ~~create database library~~
+- ~~create logon ui~~
+- create server app
+- hook up server to client
+- store account information
+
+_(more tasks will appear as development progresses)_
 
 
 
