@@ -208,7 +208,7 @@ namespace Haze
             Packet packet = obj.GetType() == typeof(string) ? new StringPacket((string)obj) : new Packet(obj);
             Packet.Send(Stream, packet);
 
-            //if (Server.LogSends) Logger.WriteLog(this, false, packet.GetType().Name);
+            if (Server.LogSends) Logger.WriteLog(this, false, packet.GetType().Name);
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace Haze
         public void Send(Packet packet)
         {
             Packet.Send(Stream, packet);
-            //if (Server.LogSends && !(packet is PeerPacket)) Logger.WriteLog(this, false, packet.GetType().Name);
+            if (Server.LogSends && !(packet is PeerPacket)) Logger.WriteLog(this, false, packet.GetType().Name);
         }
 
         #endregion
