@@ -271,6 +271,47 @@ namespace Haze
         }
 
         /// <summary>
+        /// Connects this <see cref="Client"/> to the server using an identifying object. This method returns when the server validates the client.
+        /// </summary>
+        public async Task ConnectAsync(object tag)
+        {
+            //Wait for InitClient to get the public IP address (if necessary)
+            while (!ready) await Task.Delay(1);
+
+            //Connect & get the stream
+            client.Connect(hostAddr, port);
+            stream = client.GetStream();
+            server = new ServerAbstract(0, 0, "", 0, null);
+            Logger.WriteLog(shallowServer, false, "connecting", ConsoleColor.Yellow);
+
+            //Send the password as the first packet & begin listening for data
+            Send(new ServerKey(Name, tag));
+            stream.BeginRead(lastData, 0, lastData.Length, RecievedDataCallback, stream);
+
+            //Wait until validated
+            while (!connected) await 1;
+        }
+
+        /// <summary>
+        /// Connects this <see cref="Client"/> to the server using an identifying object.
+        /// </summary>
+        public async void Connect(object tag)
+        {
+            //Wait for InitClient to get the public IP address (if necessary)
+            while (!ready) await Task.Delay(1);
+
+            //Connect & get the stream
+            client.Connect(hostAddr, port);
+            stream = client.GetStream();
+            server = new ServerAbstract(0, 0, "", 0, null);
+            Logger.WriteLog(shallowServer, false, "connecting");
+
+            //Send the password as the first packet & begin listening for data
+            Send(new ServerKey(Name, tag));
+            stream.BeginRead(lastData, 0, lastData.Length, RecievedDataCallback, stream);
+        }
+
+        /// <summary>
         /// Pings the server this <see cref="Client"/> is connected to and returns a <see cref="NetworkSpeed"/> object representing the results of the operation.
         /// </summary>
         public async Task<NetworkSpeed> GetPing()

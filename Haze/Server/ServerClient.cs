@@ -89,6 +89,9 @@ namespace Haze
 
         /// <summary>
         /// The data this <see cref="ServerClient"/>'s remote client has sent over the lifetime of its connection.
+        /// <para>
+        /// The initial <see cref="ServerKey"/> object sent by the remote client to connect to the server will not be included in this list.
+        /// </para>
         /// </summary>
         public List<(Packet Packet, DateTime RecievalTime)> SentData { get; } = new List<(Packet Packet, DateTime RecievalTime)>();
 
@@ -143,6 +146,9 @@ namespace Haze
 
         /// <summary>
         /// Invoked when this <see cref="ServerClient"/> recieves data from the remote client.
+        /// <para>
+        /// This event will not invoke if the recieved packet is a <see cref="ServerKey"/>, the object used by the remote client to connect to the server.
+        /// </para>
         /// </summary>
         public event DataRecievedEventHandler DataRecieved;
 
@@ -299,7 +305,6 @@ namespace Haze
                 Packet packet = (Packet)data[0];
 
                 //Add the recieved data to the list and reassign the data buffer
-                SentData.Add((packet, TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.Local)));
                 lastData = new byte[BufferSize];
 
                 //Log the packet's content
@@ -324,7 +329,10 @@ namespace Haze
                     }
 
                 //Check for specific packets
-                else ConditionalHelper.Switch(value: packet.GetType(),
+                else
+                {
+                    SentData.Add((packet, TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.Local)));
+                    ConditionalHelper.Switch(value: packet.GetType(),
 
                                               //Always execute default action
                                               breakSwitch: false,
@@ -391,6 +399,7 @@ namespace Haze
                                                       }
                                                   }
                                               });
+                }
 
                 //Start listening for more data
                 Stream.BeginRead(lastData, 0, lastData.Length, RecievedDataCallback, Stream);

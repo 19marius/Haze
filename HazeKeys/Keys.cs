@@ -45,11 +45,25 @@ namespace Haze.Keys
         public string ClientName { get; }
 
         /// <summary>
-        /// Creates a new instance of the <see cref="ServerKey"/> class. Only a <see cref="Server"/> and a <see cref="Client"/> can do this.
+        /// Gets additional information about this object.
+        /// </summary>
+        public object Tag { get; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="ServerKey"/> class. Only a <see cref="Client"/> can do this.
         /// </summary>
         public ServerKey(string name)
         {
             ClientName = name;
+        }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="ServerKey"/> class using an additional tag. Only a <see cref="Client"/> can do this.
+        /// </summary>
+        public ServerKey(string name, object tag)
+        {
+            ClientName = name;
+            Tag = tag;
         }
     }
 
