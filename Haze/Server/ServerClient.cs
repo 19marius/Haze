@@ -123,7 +123,7 @@ namespace Haze
         public override string[] DisabledCommands { get; } = Array.Empty<string>();
 
         /// <summary>
-        /// This <see cref="ServerClient"/>'s custom tags.
+        /// This <see cref="ServerClient"/>'s custom tags. If the remote client uses a <see cref="ServerKey"/> with a tag to connect, that tag will be added to this property.
         /// </summary>
         public object[] Tags { get; set; }
 
@@ -316,6 +316,7 @@ namespace Haze
                     {
                         valid = true;
                         name = key.ClientName;
+                        Tags = key.Tag is null ? null : new object[] { key.Tag };
                         Logger.WriteLog(this, true, "name set to \"" + name + "\"", ConsoleColor.Yellow);
                         joinTime.Start();
 
