@@ -378,7 +378,7 @@ namespace Haze
         /// <summary>
         /// Called when a <see cref="ServerClient"/> connects to the server.
         /// </summary>
-        void OnClientConnect(object sender, ServerClientConnectedEventArgs args)
+        object OnClientConnect(object sender, ServerClientConnectedEventArgs args)
         {
             var client = (ServerClient)sender;
 
@@ -400,6 +400,8 @@ namespace Haze
 
             //Log the connection
             Logger.WriteLog(client, false, client.Address + " connected", ConsoleColor.Green);
+
+            return null;
         }
 
         /// <summary>

@@ -38,7 +38,10 @@ namespace Haze
         /// <summary>
         /// Represents the method(s) called when a <see cref="ServerClient"/> gets validated and is sent a <see cref="WelcomePacket"/>.
         /// </summary>
-        public delegate void ClientConnectedEventHandler(object sender, ServerClientConnectedEventArgs e);
+        /// <returns>
+        /// An <see cref="object"/> to wrap in the <see cref="WelcomePacket"/> to be sent to the remote client.
+        /// </returns>
+        public delegate object ClientConnectedEventHandler(object sender, ServerClientConnectedEventArgs e);
 
         #endregion
 
@@ -158,7 +161,7 @@ namespace Haze
         public event ClientDisconnectedEventHandler Disconnected;
 
         /// <summary>
-        /// Invoked when this <see cref="ServerClient"/> remote client is validated.
+        /// Invoked when this <see cref="ServerClient"/> remote client is validated. It is also invoked before informing the remote client of its validation through a <see cref="WelcomePacket"/>.
         /// <para>
         /// Validation is defined in the IsValid property.
         /// </para>
@@ -320,8 +323,8 @@ namespace Haze
                         Logger.WriteLog(this, true, "name set to \"" + name + "\"", ConsoleColor.Yellow);
                         joinTime.Start();
 
-                        Connected?.Invoke(this, new ServerClientConnectedEventArgs(this));
-                        Send(new WelcomePacket(new ServerUpdatePacket(Server.MaxClients, Server.CurrentClients, Server.Name, (int)Tags[0], Server.Select(x => new ServerClientAbstract(x.ID) { Name = x.Name }).ToArray())));
+                        var tag = Connected?.Invoke(this, new ServerClientConnectedEventArgs(this));
+                        Send(new WelcomePacket(new ServerUpdatePacket(Server.MaxClients, Server.CurrentClients, Server.Name, (int)Tags[0], Server.Select(x => new ServerClientAbstract(x.ID) { Name = x.Name }).ToArray())) { Tag = tag });
                     }
                     else
                     {

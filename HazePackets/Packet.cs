@@ -23,6 +23,11 @@ namespace Haze.Packets
             get => time;
         }
 
+        /// <summary>
+        /// Gets or sets an <see cref="object"/> that provides additional information about this <see cref="Packet"/>.
+        /// </summary>
+        public object Tag { get; set; }
+
         #region Fields
 
         /// <summary>
@@ -69,7 +74,7 @@ namespace Haze.Packets
         /// </summary>
         public static void Send(NetworkStream stream, Packet packet)
         {
-            //if (TypeHelper.GetCallingType(2).BaseType != typeof(RemoteUnit)) throw new MethodAccessException("Packet.Send method was not called by a RemoteUnit.");
+            if (TypeHelper.GetCallingType(2).BaseType != typeof(RemoteUnit)) throw new MethodAccessException("Packet.Send method was not called by a RemoteUnit.");
             if (packet is null) throw new ArgumentNullException("packet");
 
             packet.time = DateTime.UtcNow;
