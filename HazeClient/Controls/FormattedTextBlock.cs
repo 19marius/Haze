@@ -428,16 +428,16 @@ namespace HazeClient.Controls
 
                             case Txt.FormattedTextEffectType.Link:
 
+                                //Only add event handlers to the run on the first character
+                                if (charEffect != 0) break;
+
                                 //Get the link handler and add it to the instance's list
                                 var handler = text.Effects[group / 2].EffectGroup[effectGroup].Value as Txt.LinkHandler;
                                 handlers.Add(handler);
 
-                                //Only add event handlers to the run on the first character
-                                if (charEffect != 0) break;
-
                                 //Add tags to the run
                                 run.Cursor = Cursors.Hand;
-                                run.Tag = new List<object>() { false, handler, text.Effects[group / 2], new List<Transform>() };
+                                run.Tag = new object[] { false, handler, text.Effects[group / 2], new List<Transform>() };
                                 run.MouseLeftButtonDown += OnRunMouseDown;
                                 run.MouseLeftButtonUp += OnRunMouseUp;
                                 run.MouseLeave += OnRunMouseLeave;
@@ -612,7 +612,7 @@ namespace HazeClient.Controls
         {
             //Get the run and its tags
             var run = sender as Run;
-            var tags = run.Tag as List<object>;
+            var tags = run.Tag as object[];
 
             //Tag 0 means the left mouse button was pressed over the run
             tags[0] = true;
@@ -769,6 +769,10 @@ namespace HazeClient.Controls
         void OnRunMouseUp(object sender, MouseButtonEventArgs e)
         {
             OnRunMouseUpOrLeft(sender);
+
+            //Invoke the click handler
+            var handler = ((sender as Run)?.Tag as object[])[1] as Txt.LinkHandler;
+            if (!(handler?.Handler is null)) handler.Handler();
         }
 
         /// <summary>
@@ -786,7 +790,7 @@ namespace HazeClient.Controls
         {
             //Get the run and its tags
             var run = sender as Run;
-            var tags = run.Tag as List<object>;
+            var tags = run.Tag as object[];
 
             //If the mouse wasn't depressed on the run, this event shouldn't occur
             if ((bool)tags[0] == false) return;
@@ -804,7 +808,7 @@ namespace HazeClient.Controls
             run.FontWeight = FontWeight;
             run.FontStyle = FontStyle;
 
-            //Get the effect group and readd the animations to each effect
+            //Get the effect group and re-add the animations to each effect
             var group = (Txt.FormattedTextEffectGroup)tags[2];
             for (int charEffect = 0; !(tags[1] as Txt.LinkHandler).ClickEffect.Equals(default(Txt.FormattedTextEffect)) && charEffect < run.Text.Length; charEffect++)
             {
@@ -938,9 +942,6 @@ namespace HazeClient.Controls
                     }
                 }
             }
-
-            var handler = tags[1] as Txt.LinkHandler;
-            if (!(handler?.Handler is null)) handler.Handler();
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)

@@ -275,7 +275,7 @@
                                        Margin="0,0,0,-150"
                                        PasswordChar="*"
                                        FontFamily="Segoe UI"
-                                       PreviewText="Password">
+                                       PreviewText="Password" TextFinished="OnPassBoxTextFinished">
                 </controls:RoundTextBox>
                 <controls:RoundTextBox x:Name="confirmBox"
                                        x:FieldModifier="private"

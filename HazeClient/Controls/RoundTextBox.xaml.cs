@@ -399,7 +399,7 @@ namespace HazeClient.Controls
             textBox.CaretIndex = textBox.Text.Length;
             if (isPreviewActive) return;
 
-            if (textBox.Text != Text)
+            if (textBox.Text != (PasswordChar.HasValue ? Regex.Replace(Text, ".", PasswordChar + "") : Text))
             {
                 var change = e.Changes.GetEnumerator().GetFirst();
                 Text = Text.Substring(0, Text.Length - change.RemovedLength) + textBox.Text.Remove(0, textBox.Text.Length - change.AddedLength);

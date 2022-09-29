@@ -363,5 +363,10 @@ namespace HazeClient
         {
             Console.WriteLine("logging in");
         }
+
+        private void OnPassBoxTextFinished(object sender, TextFinishedEventArgs e)
+        {
+            Console.WriteLine(passBox.Text);
+        }
     }
 }
